@@ -21,7 +21,7 @@ export default function App() {
 
   const handleUnitChange = (newUnit) => {
     toggleUnit(newUnit);
-    if (weather) searchByCity(weather.name);
+    if (weather) searchByCity(weather.name, newUnit);
   };
 
   const isNight = weather

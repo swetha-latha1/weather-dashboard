@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
+import { getWeatherEmoji } from '../utils/weatherEmoji';
 
 const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
 
-const HOTTEST = ['Kuwait City', 'Riyadh', 'Dubai', 'Phoenix', 'Doha', 'Karachi', 'Baghdad', 'Muscat'];
-const COOLEST = ['Yakutsk', 'Oymyakon', 'Barrow', 'Reykjavik', 'Tromsø', 'Murmansk', 'Fairbanks', 'Nuuk'];
+const HOTTEST  = ['Kuwait City', 'Riyadh', 'Dubai', 'Phoenix', 'Doha', 'Karachi', 'Baghdad', 'Muscat'];
+const COOLEST  = ['Yakutsk', 'Oymyakon', 'Barrow', 'Reykjavik', 'Tromsø', 'Murmansk', 'Fairbanks', 'Nuuk'];
+const RAINIEST = ['Mawsynram', 'Cherrapunji', 'Mumbai', 'Kolkata', 'Bangkok', 'Singapore', 'Kuala Lumpur', 'Manila'];
+
+const TABS = [
+  { key: 'hot',  label: '🔥 Hottest',  cities: HOTTEST,  gradient: 'from-orange-500 to-red-500',   desc: "World's hottest cities"  },
+  { key: 'cool', label: '❄️ Coolest',  cities: COOLEST,  gradient: 'from-cyan-500 to-blue-500',    desc: "World's coolest cities"  },
+  { key: 'rain', label: '🌧️ Rainiest', cities: RAINIEST, gradient: 'from-blue-500 to-indigo-600',  desc: "World's rainiest cities" },
+];
 
 async function fetchTemp(city) {
   const res = await fetch(
@@ -17,9 +25,7 @@ async function fetchTemp(city) {
 function CityRow({ city, onSearch, rank }) {
   const [data, setData] = useState(null);
 
-  useEffect(() => {
-    fetchTemp(city).then(setData);
-  }, [city]);
+  useEffect(() => { fetchTemp(city).then(setData); }, [city]);
 
   return (
     <button
@@ -30,7 +36,10 @@ function CityRow({ city, onSearch, rank }) {
       <span className="text-white/30 text-xs w-4 shrink-0">{rank}</span>
       {data ? (
         <>
-          <img src={`https://openweathermap.org/img/wn/${data.icon}.png`} alt="" className="w-8 h-8 shrink-0" />
+          <div className="relative shrink-0">
+            <img src={`https://openweathermap.org/img/wn/${data.icon}.png`} alt="" className="w-8 h-8" />
+            <span className="absolute -bottom-1 -right-1 text-xs select-none">{getWeatherEmoji(data.id)}</span>
+          </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-xs font-semibold truncate group-hover:text-white transition">{data.name}</p>
             <p className="text-white/40 text-xs">{data.country}</p>
@@ -52,38 +61,31 @@ function CityRow({ city, onSearch, rank }) {
 
 export default function QuickCities({ onSearch }) {
   const [tab, setTab] = useState('hot');
-
-  const cities = tab === 'hot' ? HOTTEST : COOLEST;
+  const current = TABS.find((t) => t.key === tab);
 
   return (
     <div className="glass rounded-3xl p-4 flex flex-col gap-3 animate-fade-in-up h-fit">
       {/* Tab toggle */}
       <div className="flex rounded-xl overflow-hidden glass-dark p-0.5 gap-0.5">
-        <button
-          onClick={() => setTab('hot')}
-          className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5
-            ${tab === 'hot' ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70'}`}
-        >
-          🔥 Hottest
-        </button>
-        <button
-          onClick={() => setTab('cool')}
-          className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5
-            ${tab === 'cool' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg' : 'text-white/40 hover:text-white/70'}`}
-        >
-          ❄️ Coolest
-        </button>
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center
+              ${tab === t.key ? `bg-gradient-to-r ${t.gradient} text-white shadow-lg` : 'text-white/40 hover:text-white/70'}`}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {/* Label */}
-      <p className="text-white/30 text-xs px-1">
-        {tab === 'hot' ? 'World\'s hottest cities right now' : 'World\'s coolest cities right now'}
-      </p>
+      <p className="text-white/30 text-xs px-1">{current.desc}</p>
 
       {/* City list */}
       <div className="flex flex-col gap-0.5">
-        {cities.map((city, i) => (
-          <CityRow key={city} city={city} onSearch={onSearch} rank={i + 1} />
+        {current.cities.map((city, i) => (
+          <CityRow key={`${tab}-${city}`} city={city} onSearch={onSearch} rank={i + 1} />
         ))}
       </div>
 

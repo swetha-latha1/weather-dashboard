@@ -11,13 +11,14 @@ export function useWeather() {
   const [error, setError] = useState('');
   const [unit, setUnit] = useState('metric');
 
-  const fetchData = useCallback(async (query) => {
+  // unit is passed explicitly so callers always use the latest value
+  const fetchData = useCallback(async (query, activeUnit) => {
     setLoading(true);
     setError('');
     try {
       const [currentRes, forecastRes] = await Promise.all([
-        fetch(`${BASE}/weather?${query}&units=${unit}&appid=${API_KEY}`),
-        fetch(`${BASE}/forecast?${query}&units=${unit}&appid=${API_KEY}`),
+        fetch(`${BASE}/weather?${query}&units=${activeUnit}&appid=${API_KEY}`),
+        fetch(`${BASE}/forecast?${query}&units=${activeUnit}&appid=${API_KEY}`),
       ]);
 
       if (!currentRes.ok) {
@@ -31,14 +32,8 @@ export function useWeather() {
       const forecastData = await forecastRes.json();
 
       setWeather(currentData);
-
-      // Hourly: next 8 slots (24 hrs)
       setHourly(forecastData.list.slice(0, 8));
-
-      // Daily: one entry per day at ~12:00
-      const daily = forecastData.list.filter((item) =>
-        item.dt_txt.includes('12:00:00')
-      );
+      const daily = forecastData.list.filter((item) => item.dt_txt.includes('12:00:00'));
       setForecast(daily.slice(0, 5));
     } catch (err) {
       setError(err.message);
@@ -48,13 +43,11 @@ export function useWeather() {
     } finally {
       setLoading(false);
     }
-  }, [unit]);
+  }, []);
 
-  const searchByCity = (city) => fetchData(`q=${encodeURIComponent(city)}`);
-
-  const searchByCoords = (lat, lon) => fetchData(`lat=${lat}&lon=${lon}`);
-
-  const toggleUnit = (newUnit) => setUnit(newUnit);
+  const searchByCity   = (city, u)        => fetchData(`q=${encodeURIComponent(city)}`, u ?? unit);
+  const searchByCoords = (lat, lon, u)    => fetchData(`lat=${lat}&lon=${lon}`, u ?? unit);
+  const toggleUnit     = (newUnit)        => setUnit(newUnit);
 
   return { weather, forecast, hourly, loading, error, unit, searchByCity, searchByCoords, toggleUnit };
 }
