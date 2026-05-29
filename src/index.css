@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* ── Cloud drift animations ── */
+@keyframes drift-slow  { from { transform: translateX(-120px); } to { transform: translateX(110vw); } }
+@keyframes drift-med   { from { transform: translateX(-200px); } to { transform: translateX(110vw); } }
+@keyframes drift-fast  { from { transform: translateX(-80px);  } to { transform: translateX(110vw); } }
+@keyframes rain-fall   { from { transform: translateY(-10px) scaleY(0.8); opacity: 0.7; } to { transform: translateY(100vh) scaleY(1.2); opacity: 0; } }
+@keyframes snow-fall   { 0%   { transform: translateY(-10px) translateX(0); opacity: 0.9; }
+                         50%  { transform: translateY(50vh)  translateX(20px); }
+                         100% { transform: translateY(100vh) translateX(-10px); opacity: 0; } }
+@keyframes lightning   { 0%,90%,100% { opacity: 0; } 92%,96% { opacity: 1; } 94%,98% { opacity: 0.4; } }
+@keyframes fog-drift   { 0%,100% { opacity: 0.18; transform: translateX(0); }
+                         50%     { opacity: 0.32; transform: translateX(40px); } }
+@keyframes pulse-glow  { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
+@keyframes float-card  { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes spin-slow   { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes fade-in-up  { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+.animate-drift-slow  { animation: drift-slow  28s linear infinite; }
+.animate-drift-med   { animation: drift-med   18s linear infinite; }
+.animate-drift-fast  { animation: drift-fast  12s linear infinite; }
+.animate-rain        { animation: rain-fall    0.8s linear infinite; }
+.animate-snow        { animation: snow-fall    4s  ease-in infinite; }
+.animate-lightning   { animation: lightning    6s  ease-in-out infinite; }
+.animate-fog         { animation: fog-drift    8s  ease-in-out infinite; }
+.animate-pulse-glow  { animation: pulse-glow   3s  ease-in-out infinite; }
+.animate-float-card  { animation: float-card   4s  ease-in-out infinite; }
+.animate-spin-slow   { animation: spin-slow   20s  linear infinite; }
+.animate-fade-in-up  { animation: fade-in-up  0.6s ease-out forwards; }
+
+/* stagger delays */
+.delay-1 { animation-delay: 2s; }
+.delay-2 { animation-delay: 5s; }
+.delay-3 { animation-delay: 8s; }
+.delay-4 { animation-delay: 11s; }
+.delay-5 { animation-delay: 0.3s; }
+.delay-6 { animation-delay: 0.6s; }
+.delay-7 { animation-delay: 0.9s; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 99px; }
+
+/* Glass card */
+.glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.glass-dark {
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Portal dropdown — needs stronger bg so it's readable over any content */
+.dropdown-portal {
+  background: rgba(15, 20, 40, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.18);
+}
