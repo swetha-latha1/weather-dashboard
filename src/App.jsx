@@ -33,10 +33,11 @@ export default function App() {
     : false;
 
   const conditionId = weather?.weather?.[0]?.id ?? null;
+  const temp = weather?.main?.temp ?? null;
 
   return (
     <div className="relative min-h-screen text-white overflow-x-hidden">
-      <WeatherBackground conditionId={conditionId} isNight={isNight} />
+      <WeatherBackground conditionId={conditionId} isNight={isNight} temp={temp} />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-10 space-y-5">
 

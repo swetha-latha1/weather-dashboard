@@ -1,9 +1,15 @@
 // Maps weather condition id → theme config
-export function getTheme(conditionId, isNight) {
+export function getTheme(conditionId, isNight, temp) {
   if (!conditionId) return themes.default;
+
+  // Force snow theme if actual temperature is below freezing
+  // regardless of condition (covers clear/cloudy Antarctic skies)
+  const isFreezing = typeof temp === 'number' && temp <= 0;
+
   if (conditionId >= 200 && conditionId < 300) return themes.thunderstorm;
   if (conditionId >= 300 && conditionId < 600) return themes.rain;
-  if (conditionId >= 600 && conditionId < 700) return themes.snow;
+  if (conditionId >= 600 && conditionId < 700) return themes.snow;   // actual snow codes
+  if (isFreezing)                              return themes.snow;   // freezing but clear/cloudy
   if (conditionId >= 700 && conditionId < 800) return themes.fog;
   if (conditionId === 800) return isNight ? themes.clearNight : themes.clearDay;
   if (conditionId === 801 || conditionId === 802) return isNight ? themes.fewCloudsNight : themes.fewClouds;
@@ -55,20 +61,34 @@ function Rain() {
   );
 }
 
-// Snow flakes
+// Snow flakes — more flakes, varied sizes and speeds
 function Snow() {
   return (
     <g>
-      {Array.from({ length: 35 }).map((_, i) => (
-        <circle
-          key={i}
-          cx={Math.random() * 1200} cy={Math.random() * 100}
-          r={Math.random() * 3 + 1}
-          fill="rgba(255,255,255,0.85)"
-          className="animate-snow"
-          style={{ animationDelay: `${(i * 0.15).toFixed(2)}s`, animationDuration: `${3 + Math.random() * 3}s` }}
-        />
-      ))}
+      {Array.from({ length: 80 }).map((_, i) => {
+        const size  = Math.random() * 4 + 1;
+        const xPos  = Math.random() * 1200;
+        const dur   = 3 + Math.random() * 5;
+        const delay = (i * 0.12).toFixed(2);
+        // alternate between circle flakes and snowflake crosses
+        return i % 3 === 0 ? (
+          <g key={i} className="animate-snow" style={{ animationDelay: `${delay}s`, animationDuration: `${dur}s` }}>
+            <line x1={xPos} y1={0} x2={xPos} y2={size * 2.5} stroke="rgba(255,255,255,0.8)" strokeWidth="1" />
+            <line x1={xPos - size} y1={size * 0.6} x2={xPos + size} y2={size * 0.6} stroke="rgba(255,255,255,0.8)" strokeWidth="1" />
+          </g>
+        ) : (
+          <circle key={i}
+            cx={xPos} cy={Math.random() * 80}
+            r={size}
+            fill="rgba(255,255,255,0.85)"
+            className="animate-snow"
+            style={{ animationDelay: `${delay}s`, animationDuration: `${dur}s` }}
+          />
+        );
+      })}
+      {/* Ground frost shimmer */}
+      <rect x="0" y="460" width="1200" height="40" fill="rgba(220,235,255,0.15)" />
+      <ellipse cx="600" cy="490" rx="700" ry="20" fill="rgba(200,220,255,0.12)" />
     </g>
   );
 }
@@ -135,8 +155,8 @@ function Sun() {
   );
 }
 
-export default function WeatherBackground({ conditionId, isNight }) {
-  const theme = getTheme(conditionId, isNight);
+export default function WeatherBackground({ conditionId, isNight, temp }) {
+  const theme = getTheme(conditionId, isNight, temp);
 
   return (
     <div className={`fixed inset-0 -z-10 bg-gradient-to-b ${theme.sky} transition-all duration-1000`}>
